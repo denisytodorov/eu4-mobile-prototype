@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Ocean background -->
+  <rect width="800" height="600" fill="#a8c8e8"/>
+
+  <!-- Landmass base (subtle continent shape) -->
+  <rect x="100" y="40" width="680" height="520" rx="10" fill="#d5c4a1" opacity="0.3"/>
+
+  <g id="provinces">
+    <!-- Scotland -->
+    <path id="scotland" class="province" data-name="Scotland"
+          d="M 115,55 L 165,48 L 180,70 L 175,105 L 150,115 L 120,100 L 108,75 Z"
+          fill="#bdc3c7"/>
+
+    <!-- England -->
+    <path id="england" class="province" data-name="England"
+          d="M 120,125 L 155,118 L 180,115 L 195,140 L 190,185 L 175,210 L 148,215 L 125,195 L 115,160 Z"
+          fill="#bdc3c7"/>
+
+    <!-- France -->
+    <path id="france" class="province" data-name="France"
+          d="M 155,235 L 210,220 L 275,225 L 310,250 L 315,310 L 295,370 L 250,395 L 195,385 L 160,350 L 140,295 Z"
+          fill="#bdc3c7"/>
+
+    <!-- Burgundy -->
+    <path id="burgundy" class="province" data-name="Burgundy"
+          d="M 310,250 L 355,230 L 385,245 L 390,290 L 370,315 L 335,320 L 315,310 Z"
+          fill="#bdc3c7"/>
+
+    <!-- Castile -->
+    <path id="castile" class="province" data-name="Castile"
+          d="M 115,410 L 170,395 L 225,400 L 240,435 L 230,475 L 185,495 L 130,485 L 110,450 Z"
+          fill="#bdc3c7"/>
+
+    <!-- Aragon -->
+    <path id="aragon" class="province" data-name="Aragon"
+          d="M 225,400 L 275,390 L 310,405 L 315,445 L 290,470 L 245,465 L 240,435 Z"
+          fill="#bdc3c7"/>
+
+    <!-- Holy Roman Empire -->
+    <path id="hre" class="province" data-name="Holy Roman Empire"
+          d="M 355,230 L 420,195 L 490,200 L 530,230 L 525,280 L 500,315 L 450,330 L 390,320 L 370,315 L 390,290 L 385,245 Z"
+          fill="#bdc3c7"/>
+
+    <!-- Italy -->
+    <path id="italy" class="province" data-name="Italy"
+          d="M 370,340 L 410,335 L 440,360 L 445,410 L 430,455 L 405,480 L 380,470 L 365,430 L 350,385 L 355,355 Z"
+          fill="#bdc3c7"/>
+
+    <!-- Denmark -->
+    <path id="denmark" class="province" data-name="Denmark"
+          d="M 360,95 L 410,80 L 445,90 L 450,130 L 435,165 L 410,175 L 380,165 L 355,140 Z"
+          fill="#bdc3c7"/>
+
+    <!-- Poland -->
+    <path id="poland" class="province" data-name="Poland"
+          d="M 530,230 L 580,205 L 635,215 L 655,250 L 645,295 L 610,315 L 560,310 L 535,285 L 525,280 Z"
+          fill="#bdc3c7"/>
+
+    <!-- Lithuania -->
+    <path id="lithuania" class="province" data-name="Lithuania"
+          d="M 580,205 L 625,175 L 680,165 L 715,190 L 710,235 L 680,255 L 655,250 L 635,215 Z"
+          fill="#bdc3c7"/>
+
+    <!-- Hungary -->
+    <path id="hungary" class="province" data-name="Hungary"
+          d="M 500,315 L 560,310 L 610,315 L 625,350 L 610,385 L 565,395 L 520,385 L 495,355 Z"
+          fill="#bdc3c7"/>
+
+    <!-- Balkans -->
+    <path id="balkans" class="province" data-name="Balkans"
+          d="M 520,400 L 565,395 L 610,405 L 630,440 L 615,480 L 570,495 L 530,480 L 510,445 Z"
+          fill="#bdc3c7"/>
+
+    <!-- Anatolia -->
+    <path id="anatolia" class="province" data-name="Anatolia"
+          d="M 630,440 L 680,420 L 740,430 L 770,460 L 755,500 L 700,515 L 650,505 L 615,480 Z"
+          fill="#bdc3c7"/>
+  </g>
+
+  <g id="labels">
+    <text class="province-label" x="145" y="85">Scotland</text>
+    <text class="province-label" x="155" y="170">England</text>
+    <text class="province-label" x="230" y="310">France</text>
+    <text class="province-label" x="352" y="285">Burgundy</text>
+    <text class="province-label" x="175" y="450">Castile</text>
+    <text class="province-label" x="270" y="435">Aragon</text>
+    <text class="province-label" x="445" y="265">H.R.E.</text>
+    <text class="province-label" x="400" y="410">Italy</text>
+    <text class="province-label" x="405" y="130">Denmark</text>
+    <text class="province-label" x="585" y="265">Poland</text>
+    <text class="province-label" x="660" y="215">Lithuania</text>
+    <text class="province-label" x="560" y="355">Hungary</text>
+    <text class="province-label" x="570" y="445">Balkans</text>
+    <text class="province-label" x="700" y="470">Anatolia</text>
+  </g>
+</svg>

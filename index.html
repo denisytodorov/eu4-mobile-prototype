@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Europa Universalis — Kingdom of France</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <header id="hud">
+            <div class="hud-left">
+                <span class="hud-crown">&#9813;</span>
+                <span id="hud-country">Kingdom of France</span>
+                <span class="hud-divider">|</span>
+                <span id="hud-year">Year: 1444</span>
+            </div>
+            <div class="hud-center">
+                <div class="stat" id="stat-military">
+                    <span class="stat-icon">&#9876;</span>
+                    <span class="stat-label">Military</span>
+                    <span class="stat-value" id="hud-military">60</span>
+                    <span class="stat-delta" id="delta-military"></span>
+                </div>
+                <div class="stat" id="stat-gold">
+                    <span class="stat-icon">&#9737;</span>
+                    <span class="stat-label">Gold</span>
+                    <span class="stat-value" id="hud-gold">100</span>
+                    <span class="stat-delta" id="delta-gold"></span>
+                </div>
+                <div class="stat" id="stat-income">
+                    <span class="stat-label">Income</span>
+                    <span class="stat-value" id="hud-income">+15/yr</span>
+                </div>
+            </div>
+            <div class="hud-right">
+                <button id="end-turn-btn">End Year &#9654;</button>
+            </div>
+        </header>
+
+        <main id="game-area">
+            <aside id="history-panel">
+                <h3>Chronicle</h3>
+                <div id="history-log"></div>
+            </aside>
+            <section id="map-container"></section>
+        </main>
+
+        <div id="province-tooltip" class="tooltip" style="display:none;"></div>
+
+        <div id="decision-overlay" class="overlay" style="display:none;">
+            <div class="decision-card">
+                <div class="card-category" id="card-category"></div>
+                <h2 id="card-title"></h2>
+                <p id="card-description"></p>
+                <div id="card-choices"></div>
+            </div>
+        </div>
+
+        <div id="war-overlay" class="overlay" style="display:none;">
+            <div class="war-card">
+                <h2>Declare War?</h2>
+                <div id="war-comparison"></div>
+                <div class="war-buttons">
+                    <button id="war-confirm" class="btn-war">Attack!</button>
+                    <button id="war-cancel" class="btn-cancel">Retreat</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="war-result-overlay" class="overlay" style="display:none;">
+            <div class="war-result-card">
+                <h2 id="war-result-title"></h2>
+                <p id="war-result-text"></p>
+                <button id="war-result-ok" class="btn-ok">Continue</button>
+            </div>
+        </div>
+
+        <div id="end-overlay" class="overlay" style="display:none;">
+            <div class="end-card">
+                <h2 id="end-title"></h2>
+                <p id="end-text"></p>
+                <div id="end-stats"></div>
+                <button id="end-restart" class="btn-ok">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/constants.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
