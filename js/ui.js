@@ -8,7 +8,13 @@ const UI = {
         document.getElementById("hud-year").textContent = `Year: ${gameState.currentYear}`;
         document.getElementById("hud-military").textContent = Math.floor(player.military);
         document.getElementById("hud-gold").textContent = Math.floor(player.gold);
-        document.getElementById("hud-income").textContent = `${income >= 0 ? "+" : ""}${income}/yr | ${provCount} prov.`;
+        document.getElementById("hud-stability").textContent = player.stability;
+        document.getElementById("hud-legitimacy").textContent = Math.floor(player.legitimacy);
+
+        const stabMod = 1 + (player.stability * STABILITY_INCOME_MULT);
+        const incomeStr = `${income >= 0 ? "+" : ""}${income}/yr`;
+        const stabStr = player.stability !== 0 ? ` (${Math.round(stabMod * 100)}% tax)` : "";
+        document.getElementById("hud-income").textContent = `${incomeStr}${stabStr} | ${provCount} prov.`;
     },
 
     showDelta(stat, value) {
@@ -72,6 +78,14 @@ const UI = {
             const sign = effects.military > 0 ? "+" : "";
             parts.push(`Military: ${sign}${effects.military}`);
         }
+        if (effects.stability) {
+            const sign = effects.stability > 0 ? "+" : "";
+            parts.push(`Stability: ${sign}${effects.stability}`);
+        }
+        if (effects.legitimacy) {
+            const sign = effects.legitimacy > 0 ? "+" : "";
+            parts.push(`Legitimacy: ${sign}${effects.legitimacy}`);
+        }
         return parts.join(" | ");
     },
 
@@ -83,17 +97,21 @@ const UI = {
             const defender = gameState.countries[defenderId];
             const provName = PROVINCES[provinceId].name;
 
+            const stabAfter = Math.max(STABILITY_MIN, attacker.stability + STABILITY_WAR_DECLARE_COST);
+
             document.getElementById("war-comparison").innerHTML = `
                 <div class="war-side">
                     <div class="war-side-name">${attacker.name || COUNTRIES[attackerId].name}</div>
                     <div class="war-side-mil" style="color:var(--military-color)">&#9876; ${Math.floor(attacker.military)}</div>
                     <div style="font-size:12px;color:var(--text-light)">x0.9 (attacker)</div>
+                    <div style="font-size:12px;color:#5dade2">Stability: ${attacker.stability} &#x2192; ${stabAfter}</div>
                 </div>
                 <div class="war-vs">VS</div>
                 <div class="war-side">
                     <div class="war-side-name">${COUNTRIES[defenderId].name}</div>
                     <div class="war-side-mil" style="color:var(--military-color)">&#9876; ${Math.floor(defender.military)}</div>
                     <div style="font-size:12px;color:var(--text-light)">defending ${provName}</div>
+                    <div style="font-size:12px;color:#af7ac5">Legitimacy: ${Math.floor(defender.legitimacy)}</div>
                 </div>
             `;
 
@@ -203,6 +221,8 @@ const UI = {
             <strong>Provinces:</strong> ${provCount} of 14<br>
             <strong>Military:</strong> ${Math.floor(player.military)}<br>
             <strong>Gold:</strong> ${Math.floor(player.gold)}<br>
+            <strong>Stability:</strong> ${player.stability}<br>
+            <strong>Legitimacy:</strong> ${Math.floor(player.legitimacy)}<br>
             <strong>Years Played:</strong> ${gameState.currentYear - START_YEAR}
         `;
 

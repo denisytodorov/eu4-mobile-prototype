@@ -81,6 +81,8 @@ body {
 
 #stat-military .stat-icon { color: #ff6b6b; }
 #stat-gold .stat-icon { color: var(--gold-color); }
+#stat-stability .stat-icon { color: #5dade2; }
+#stat-legitimacy .stat-icon { color: #af7ac5; }
 
 .stat-label {
     opacity: 0.7;
@@ -540,10 +542,14 @@ body {
     }
 
     .hud-center {
-        gap: 12px;
+        gap: 8px;
     }
 
     .stat-label {
         display: none;
+    }
+
+    .stat-value {
+        font-size: 14px;
     }
 }

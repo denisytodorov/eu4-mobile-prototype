@@ -13,25 +13,41 @@ async function startGame() {
     turnInProgress = false;
 }
 
+// Snapshot all 4 player stats
+function snapshotPlayer(gs) {
+    const p = gs.getPlayer();
+    return {
+        mil: Math.floor(p.military),
+        gold: Math.floor(p.gold),
+        stab: p.stability,
+        leg: Math.floor(p.legitimacy)
+    };
+}
+
+// Show deltas for all stats that changed
+function showAllDeltas(before, after) {
+    UI.showDelta("military", after.mil - before.mil);
+    UI.showDelta("gold", after.gold - before.gold);
+    UI.showDelta("stability", after.stab - before.stab);
+    UI.showDelta("legitimacy", after.leg - before.leg);
+}
+
 async function endTurn() {
     if (turnInProgress || !window.game || window.game.gameOver) return;
     turnInProgress = true;
     UI.setEndTurnEnabled(false);
 
     const gs = window.game;
-    const oldMil = Math.floor(gs.getPlayer().military);
-    const oldGold = Math.floor(gs.getPlayer().gold);
+    const beforeEcon = snapshotPlayer(gs);
 
     // 1. Advance year
     gs.currentYear++;
 
-    // 2. Economy tick
+    // 2. Economy tick (gold, military recovery, stability/legitimacy drift)
     gs.tickEconomy();
 
-    const newMil = Math.floor(gs.getPlayer().military);
-    const newGold = Math.floor(gs.getPlayer().gold);
-    UI.showDelta("military", newMil - oldMil);
-    UI.showDelta("gold", newGold - oldGold);
+    const afterEcon = snapshotPlayer(gs);
+    showAllDeltas(beforeEcon, afterEcon);
     UI.updateHUD(gs);
 
     // 3. Player event
@@ -39,15 +55,18 @@ async function endTurn() {
     const choiceIndex = await UI.showDecisionCard(event);
     const result = EventSystem.applyChoice(gs, event, choiceIndex);
 
-    // Show deltas from event
+    // Show deltas from event effects
     if (result.effects.military) UI.showDelta("military", result.effects.military);
     if (result.effects.gold) UI.showDelta("gold", result.effects.gold);
+    if (result.effects.stability) UI.showDelta("stability", result.effects.stability);
+    if (result.effects.legitimacy) UI.showDelta("legitimacy", result.effects.legitimacy);
     UI.updateHUD(gs);
 
     const effectStr = UI.formatEffects(result.effects);
     UI.addHistory(gs.currentYear, `<strong>${event.title}:</strong> ${result.outcome} (${effectStr})`, event.category);
 
     // 4. AI turns
+    const beforeAI = snapshotPlayer(gs);
     const aiResults = gs.runAI();
     for (const r of aiResults) {
         const aName = COUNTRIES[r.attacker].name;
@@ -59,12 +78,10 @@ async function endTurn() {
         }
         MapController.updateColors(gs);
         if (r.attackerWins) MapController.flashProvince(r.province);
-
-        // If player lost a province, notify
-        if (r.defender === PLAYER_COUNTRY && r.attackerWins) {
-            UI.showDelta("military", -Math.floor(oldMil * WAR_LOSER_MIL_LOSS));
-        }
     }
+    // Show any deltas from AI wars affecting the player
+    const afterAI = snapshotPlayer(gs);
+    showAllDeltas(beforeAI, afterAI);
 
     // 5. Check game over
     const endResult = gs.checkGameOver();
@@ -101,17 +118,17 @@ MapController.onProvinceClick = async (provId) => {
     turnInProgress = true;
     UI.setEndTurnEnabled(false);
 
-    const oldMil = Math.floor(gs.getPlayer().military);
-    const oldGold = Math.floor(gs.getPlayer().gold);
+    const beforeWar = snapshotPlayer(gs);
+
+    // Player pays stability cost for declaring war
+    gs.applyWarDeclarationCost(PLAYER_COUNTRY);
 
     const result = gs.resolveWar(PLAYER_COUNTRY, owner, provId);
 
     await UI.showWarResult(result, COUNTRIES[PLAYER_COUNTRY].name, COUNTRIES[owner].name);
 
-    const newMil = Math.floor(gs.getPlayer().military);
-    const newGold = Math.floor(gs.getPlayer().gold);
-    UI.showDelta("military", newMil - oldMil);
-    UI.showDelta("gold", newGold - oldGold);
+    const afterWar = snapshotPlayer(gs);
+    showAllDeltas(beforeWar, afterWar);
 
     MapController.updateColors(gs);
     UI.updateHUD(gs);

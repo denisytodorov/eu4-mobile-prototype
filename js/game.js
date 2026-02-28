@@ -18,6 +18,8 @@ class GameState {
                 name: data.name,
                 military: data.startMilitary,
                 gold: data.startGold,
+                stability: data.startStability,
+                legitimacy: data.startLegitimacy,
                 alive: true
             };
         }
@@ -50,29 +52,51 @@ class GameState {
         return this.provinceOwners[provId] || null;
     }
 
-    // Calculate gold income for a country
+    // Calculate gold income for a country (stability affects tax)
     calcIncome(countryId) {
+        const country = this.countries[countryId];
         const provs = this.getCountryProvinces(countryId);
         const tax = provs.reduce((sum, p) => sum + PROVINCES[p].baseTax, 0);
-        const upkeep = Math.floor(this.countries[countryId].military * MILITARY_UPKEEP_RATE);
-        return (tax * GOLD_PER_PROVINCE_TAX) - upkeep;
+        const stabilityMod = 1 + (country.stability * STABILITY_INCOME_MULT);
+        const upkeep = Math.floor(country.military * MILITARY_UPKEEP_RATE);
+        return Math.floor(tax * GOLD_PER_PROVINCE_TAX * stabilityMod) - upkeep;
     }
 
-    // Calculate military recovery for a country
+    // Calculate military recovery for a country (legitimacy affects recovery)
     calcRecovery(countryId) {
+        const country = this.countries[countryId];
         const provs = this.getCountryProvinces(countryId);
         const manpower = provs.reduce((sum, p) => sum + PROVINCES[p].manpower, 0);
-        return Math.floor(manpower * MILITARY_RECOVERY_MULT);
+        const legitimacyMod = 1 + (country.legitimacy - LEGITIMACY_DRIFT_TARGET) * LEGITIMACY_RECOVERY_MULT;
+        return Math.floor(manpower * MILITARY_RECOVERY_MULT * legitimacyMod);
     }
 
-    // Apply income and recovery for all countries
+    // Apply income, recovery, and stat drift for all countries
     tickEconomy() {
         for (const [id, country] of Object.entries(this.countries)) {
             if (!country.alive) continue;
+
+            // Gold income
             const income = this.calcIncome(id);
             country.gold = Math.max(0, country.gold + income);
+
+            // Military recovery
             const recovery = this.calcRecovery(id);
             country.military += recovery;
+
+            // Stability drift toward 0
+            if (country.stability > 0) {
+                country.stability = Math.max(0, country.stability - STABILITY_DECAY_RATE);
+            } else if (country.stability < 0) {
+                country.stability = Math.min(0, country.stability + STABILITY_DECAY_RATE);
+            }
+
+            // Legitimacy drift toward 50
+            if (country.legitimacy > LEGITIMACY_DRIFT_TARGET) {
+                country.legitimacy = Math.max(LEGITIMACY_DRIFT_TARGET, country.legitimacy - LEGITIMACY_DRIFT_RATE);
+            } else if (country.legitimacy < LEGITIMACY_DRIFT_TARGET) {
+                country.legitimacy = Math.min(LEGITIMACY_DRIFT_TARGET, country.legitimacy + LEGITIMACY_DRIFT_RATE);
+            }
         }
     }
 
@@ -91,7 +115,13 @@ class GameState {
         return false;
     }
 
-    // Resolve a war battle
+    // Pay stability cost for declaring war
+    applyWarDeclarationCost(countryId) {
+        const country = this.countries[countryId];
+        country.stability = Math.max(STABILITY_MIN, country.stability + STABILITY_WAR_DECLARE_COST);
+    }
+
+    // Resolve a war battle (stability modifies combat strength)
     resolveWar(attackerId, defenderId, targetProvId) {
         const attacker = this.countries[attackerId];
         const defender = this.countries[defenderId];
@@ -99,8 +129,12 @@ class GameState {
         const attackerRoll = 1 + Math.floor(Math.random() * WAR_DICE_SIDES);
         const defenderRoll = 1 + Math.floor(Math.random() * WAR_DICE_SIDES);
 
-        const attackerTotal = (attacker.military * WAR_ATTACKER_PENALTY) + (attackerRoll * WAR_DICE_MULT);
-        const defenderTotal = defender.military + (defenderRoll * WAR_DICE_MULT);
+        // Stability modifies effective military strength
+        const atkStabMod = 1 + (attacker.stability * STABILITY_WAR_MULT);
+        const defStabMod = 1 + (defender.stability * STABILITY_WAR_MULT);
+
+        const attackerTotal = (attacker.military * WAR_ATTACKER_PENALTY * atkStabMod) + (attackerRoll * WAR_DICE_MULT);
+        const defenderTotal = (defender.military * defStabMod) + (defenderRoll * WAR_DICE_MULT);
 
         const attackerWins = attackerTotal > defenderTotal;
 
@@ -110,14 +144,26 @@ class GameState {
             attacker.gold = Math.max(0, attacker.gold - WAR_WINNER_GOLD_LOSS);
             defender.gold = Math.max(0, defender.gold - WAR_LOSER_GOLD_LOSS);
             this.provinceOwners[targetProvId] = attackerId;
+
+            // Winner: legitimacy boost
+            attacker.legitimacy = Math.min(LEGITIMACY_MAX, attacker.legitimacy + LEGITIMACY_WAR_WIN_BONUS);
+            // Loser: legitimacy and stability penalties
+            defender.legitimacy = Math.max(LEGITIMACY_MIN, defender.legitimacy + LEGITIMACY_WAR_LOSS_PENALTY);
+            defender.stability = Math.max(STABILITY_MIN, defender.stability + STABILITY_WAR_LOSS_COST);
         } else {
             attacker.military = Math.max(1, Math.floor(attacker.military * (1 - WAR_LOSER_MIL_LOSS)));
             defender.military = Math.max(1, Math.floor(defender.military * (1 - WAR_WINNER_MIL_LOSS)));
             attacker.gold = Math.max(0, attacker.gold - WAR_LOSER_GOLD_LOSS);
             defender.gold = Math.max(0, defender.gold - WAR_WINNER_GOLD_LOSS);
+
+            // Defender wins: legitimacy boost
+            defender.legitimacy = Math.min(LEGITIMACY_MAX, defender.legitimacy + LEGITIMACY_WAR_WIN_BONUS);
+            // Attacker loses: legitimacy and stability penalties
+            attacker.legitimacy = Math.max(LEGITIMACY_MIN, attacker.legitimacy + LEGITIMACY_WAR_LOSS_PENALTY);
+            attacker.stability = Math.max(STABILITY_MIN, attacker.stability + STABILITY_WAR_LOSS_COST);
         }
 
-        // Check if defender lost all provinces
+        // Check if either side lost all provinces
         this.checkCountryAlive(defenderId);
         this.checkCountryAlive(attackerId);
 
@@ -143,7 +189,14 @@ class GameState {
         const results = [];
         for (const [id, country] of Object.entries(this.countries)) {
             if (id === PLAYER_COUNTRY || !country.alive) continue;
-            if (Math.random() > AI_WAR_CHANCE) continue;
+
+            // AI war chance modified by own stability
+            let effectiveChance = AI_WAR_CHANCE;
+            if (country.stability < 0) {
+                effectiveChance -= 0.05 * Math.abs(country.stability);
+            }
+            effectiveChance = Math.max(0, effectiveChance);
+            if (Math.random() > effectiveChance) continue;
 
             // Find adjacent provinces owned by others
             const myProvs = this.getCountryProvinces(id);
@@ -152,7 +205,12 @@ class GameState {
                 for (const adj of (ADJACENCY[myProv] || [])) {
                     const adjOwner = this.provinceOwners[adj];
                     if (adjOwner && adjOwner !== id && this.countries[adjOwner] && this.countries[adjOwner].alive) {
-                        if (country.military > this.countries[adjOwner].military * AI_WAR_STRENGTH_RATIO) {
+                        // Low legitimacy targets look weaker to AI
+                        let requiredRatio = AI_WAR_STRENGTH_RATIO;
+                        if (this.countries[adjOwner].legitimacy < AI_LEGITIMACY_WEAKNESS_THRESHOLD) {
+                            requiredRatio -= 0.2;
+                        }
+                        if (country.military > this.countries[adjOwner].military * requiredRatio) {
                             targets.push({ province: adj, defender: adjOwner });
                         }
                     }
@@ -160,6 +218,9 @@ class GameState {
             }
 
             if (targets.length === 0) continue;
+
+            // AI pays stability cost for declaring war
+            this.applyWarDeclarationCost(id);
 
             // Pick a random target
             const target = targets[Math.floor(Math.random() * targets.length)];
