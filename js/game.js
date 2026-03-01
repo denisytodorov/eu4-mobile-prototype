@@ -115,10 +115,11 @@ class GameState {
         return false;
     }
 
-    // Pay stability cost for declaring war
+    // Pay stability + gold cost for declaring war
     applyWarDeclarationCost(countryId) {
         const country = this.countries[countryId];
         country.stability = Math.max(STABILITY_MIN, country.stability + STABILITY_WAR_DECLARE_COST);
+        country.gold = Math.max(0, country.gold - WAR_GOLD_COST);
     }
 
     // Resolve a war battle (stability modifies combat strength)

@@ -511,6 +511,80 @@ body {
     color: var(--accent-dark);
 }
 
+/* === START SCREEN === */
+.start-card {
+    background: var(--bg-card);
+    border: 3px solid var(--border-color);
+    padding: 36px 40px;
+    max-width: 480px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.start-crest {
+    font-size: 48px;
+    color: var(--gold-color);
+    margin-bottom: 8px;
+}
+
+.start-card h1 {
+    font-family: var(--font-title);
+    color: var(--accent-dark);
+    font-size: 28px;
+    margin-bottom: 4px;
+}
+
+.start-card h2 {
+    font-family: var(--font-title);
+    color: var(--text-light);
+    font-size: 18px;
+    font-weight: normal;
+    margin-bottom: 16px;
+}
+
+.start-flavor {
+    font-size: 14px;
+    font-style: italic;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.start-instructions {
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.7;
+    margin-bottom: 24px;
+    padding: 12px 16px;
+    background: rgba(139, 69, 19, 0.05);
+    border: 1px solid rgba(139, 69, 19, 0.15);
+}
+
+.start-instructions ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 8px;
+}
+
+.start-instructions li {
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+}
+
+.start-instructions li::before {
+    content: "\2726";
+    position: absolute;
+    left: 0;
+    color: var(--gold-color);
+}
+
+.start-card .btn-ok {
+    font-size: 17px;
+    padding: 12px 32px;
+}
+
 /* === SCROLLBAR === */
 #history-log::-webkit-scrollbar {
     width: 6px;

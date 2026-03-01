@@ -1,5 +1,31 @@
 // === UI CONTROLLER ===
 const UI = {
+    showStartScreen() {
+        return new Promise((resolve) => {
+            const overlay = document.getElementById("start-overlay");
+            overlay.style.display = "flex";
+
+            const btn = document.getElementById("start-btn");
+            const newBtn = btn.cloneNode(true);
+            btn.replaceWith(newBtn);
+            newBtn.addEventListener("click", () => {
+                overlay.style.display = "none";
+                document.removeEventListener("keydown", keyHandler);
+                resolve();
+            });
+
+            const keyHandler = (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    overlay.style.display = "none";
+                    document.removeEventListener("keydown", keyHandler);
+                    resolve();
+                }
+            };
+            document.addEventListener("keydown", keyHandler);
+        });
+    },
+
     updateHUD(gameState) {
         const player = gameState.getPlayer();
         const income = gameState.calcIncome(PLAYER_COUNTRY);
@@ -98,6 +124,7 @@ const UI = {
             const provName = PROVINCES[provinceId].name;
 
             const stabAfter = Math.max(STABILITY_MIN, attacker.stability + STABILITY_WAR_DECLARE_COST);
+            const goldAfter = Math.max(0, Math.floor(attacker.gold) - WAR_GOLD_COST);
 
             document.getElementById("war-comparison").innerHTML = `
                 <div class="war-side">
@@ -105,6 +132,7 @@ const UI = {
                     <div class="war-side-mil" style="color:var(--military-color)">&#9876; ${Math.floor(attacker.military)}</div>
                     <div style="font-size:12px;color:var(--text-light)">x0.9 (attacker)</div>
                     <div style="font-size:12px;color:#5dade2">Stability: ${attacker.stability} &#x2192; ${stabAfter}</div>
+                    <div style="font-size:12px;color:var(--gold-color)">Gold: ${Math.floor(attacker.gold)} &#x2192; ${goldAfter} (-${WAR_GOLD_COST})</div>
                 </div>
                 <div class="war-vs">VS</div>
                 <div class="war-side">

@@ -3,6 +3,7 @@ window.game = null;
 let turnInProgress = false;
 
 async function startGame() {
+    document.getElementById("start-overlay").style.display = "none";
     window.game = new GameState();
     window.game.init();
     MapController.updateColors(window.game);
@@ -177,5 +178,6 @@ document.getElementById("end-turn-btn").addEventListener("click", endTurn);
 // === INIT ===
 (async function init() {
     await MapController.init();
+    await UI.showStartScreen();
     startGame();
 })();

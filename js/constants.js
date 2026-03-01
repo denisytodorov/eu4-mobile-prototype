@@ -14,6 +14,7 @@ const WAR_DICE_MULT = 5;
 const WAR_ATTACKER_PENALTY = 0.9;
 const WAR_WINNER_MIL_LOSS = 0.3;
 const WAR_LOSER_MIL_LOSS = 0.5;
+const WAR_GOLD_COST = 15;                 // gold cost to declare war
 const WAR_WINNER_GOLD_LOSS = 10;
 const WAR_LOSER_GOLD_LOSS = 20;
 
@@ -25,8 +26,8 @@ const AI_WAR_STRENGTH_RATIO = 1.2;     // AI attacks if mil > target * this
 const STABILITY_MIN = -3;
 const STABILITY_MAX = 3;
 const STABILITY_DECAY_RATE = 1;           // drifts 1 step toward 0 per turn
-const STABILITY_INCOME_MULT = 0.10;       // income modifier per stability point
-const STABILITY_WAR_MULT = 0.05;          // war strength modifier per stability point
+const STABILITY_INCOME_MULT = 0.15;       // income modifier per stability point
+const STABILITY_WAR_MULT = 0.08;          // war strength modifier per stability point
 const STABILITY_WAR_DECLARE_COST = -1;    // declaring war costs this much stability
 const STABILITY_WAR_LOSS_COST = -1;       // losing a war costs this much stability
 
@@ -35,7 +36,7 @@ const LEGITIMACY_MIN = 0;
 const LEGITIMACY_MAX = 100;
 const LEGITIMACY_DRIFT_RATE = 2;          // drifts 2 points toward 50 per turn
 const LEGITIMACY_DRIFT_TARGET = 50;
-const LEGITIMACY_RECOVERY_MULT = 0.01;    // recovery modifier per legitimacy point above/below 50
+const LEGITIMACY_RECOVERY_MULT = 0.015;   // recovery modifier per legitimacy point above/below 50
 const LEGITIMACY_WAR_WIN_BONUS = 5;
 const LEGITIMACY_WAR_LOSS_PENALTY = -10;
 const AI_LEGITIMACY_WEAKNESS_THRESHOLD = 35;

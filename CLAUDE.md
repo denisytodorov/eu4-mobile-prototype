@@ -40,22 +40,23 @@ Open http://localhost:3000
 | `js/main.js` | Init, module wiring, end-turn handler |
 
 ### Key Formulas
-- **Income:** `sum(baseTax) * stabilityMod - (military * 0.1)` where `stabilityMod = 1 + stability * 0.10`
-- **Mil recovery:** `sum(manpower) * 0.5 * legitimacyMod` where `legitimacyMod = 1 + (legitimacy - 50) * 0.01`
-- **War:** `attacker = mil * 0.9 * stabMod + d10 * 5` vs `defender = mil * stabMod + d10 * 5` where `stabMod = 1 + stability * 0.05`
+- **Income:** `sum(baseTax) * stabilityMod - (military * 0.1)` where `stabilityMod = 1 + stability * 0.15`
+- **Mil recovery:** `sum(manpower) * 0.5 * legitimacyMod` where `legitimacyMod = 1 + (legitimacy - 50) * 0.015`
+- **War:** `attacker = mil * 0.9 * stabMod + d10 * 5` vs `defender = mil * stabMod + d10 * 5` where `stabMod = 1 + stability * 0.08`
+- **War cost:** Declaring war costs -1 stability AND 15 gold (`WAR_GOLD_COST`)
 - **Win:** Own 10+ of 14 provinces. **Loss:** Own 0 provinces.
 
 ### Stability (-3 to +3)
 - Drifts 1 step toward 0 each turn (bonuses/penalties are temporary)
-- Affects income: `multiplier = 1 + stability * 0.10` (stab -3 = 70% tax, stab +3 = 130%)
-- Affects war strength: `multiplier = 1 + stability * 0.05` (stab -3 = 85% mil, stab +3 = 115%)
-- Declaring war costs -1 stability
+- Affects income: `multiplier = 1 + stability * 0.15` (stab -3 = 55% tax, stab +3 = 145%)
+- Affects war strength: `multiplier = 1 + stability * 0.08` (stab -3 = 76% mil, stab +3 = 124%)
+- Declaring war costs -1 stability + 15 gold
 - Losing a war costs -1 stability
 - Low stability (≤-2) triggers Peasant Uprising event
 
 ### Legitimacy (0-100)
 - Drifts 2 points toward 50 each turn (extreme values hard to maintain)
-- Affects military recovery: `multiplier = 1 + (legitimacy - 50) * 0.01` (leg 0 = 50%, leg 100 = 150%)
+- Affects military recovery: `multiplier = 1 + (legitimacy - 50) * 0.015` (leg 0 = 25%, leg 100 = 175%)
 - Winning wars grants +5 legitimacy, losing costs -10
 - Low legitimacy (<35) makes AI more aggressive (lowers their required strength ratio by 0.2)
 - Low legitimacy (≤30) triggers Pretender to the Throne event
@@ -99,18 +100,22 @@ England, Castile, Ottoman Empire, Burgundy, HRE, Denmark, Poland, Hungary — AI
 - `GOLD_PER_PROVINCE_TAX = 1` — income multiplier per baseTax
 - `MILITARY_UPKEEP_RATE = 0.1` — gold cost = military * 0.1 per turn
 - `MILITARY_RECOVERY_MULT = 0.5` — recovery = sum(manpower) * 0.5 per turn
-- `STABILITY_INCOME_MULT = 0.10` — tax income modified by stability (±10% per point)
-- `LEGITIMACY_RECOVERY_MULT = 0.01` — military recovery modified by legitimacy distance from 50
+- `STABILITY_INCOME_MULT = 0.15` — tax income modified by stability (±15% per point)
+- `LEGITIMACY_RECOVERY_MULT = 0.015` — military recovery modified by legitimacy distance from 50
+- `WAR_GOLD_COST = 15` — gold cost to declare war
 - `WAR_WINNER_GOLD_LOSS = 10`, `WAR_LOSER_GOLD_LOSS = 20`
 
 ### Events
 - 12 base events across 4 categories: economy (3), military (4), diplomacy (2), disaster (3)
 - 4 conditional events triggered by stat thresholds: peasant uprising, golden age, pretender claimant, church blessing
 - Weighted random selection with 5-event recent-avoidance buffer
-- All events have stability/legitimacy effects creating meaningful trade-offs
+- **Focused effects:** events primarily affect 1-2 stats, not all 4
+- **Military scarcity:** only 4 of 12 base events offer +military options; every +military choice costs gold
+- Economy/diplomacy/disaster events have NO military options — pure gold/stability/legitimacy tradeoffs
 
 ### UI System
-- **Keyboard:** 1-3 to pick event choices, Enter/Space to end turn, Esc to close overlays
+- **Start screen:** Confirms player is France, shows how-to-play instructions, "Begin Your Reign" button
+- **Keyboard:** 1-3 to pick event choices, Enter/Space to end turn or start game, Esc to close overlays
 - **Map interaction:** Hover province for tooltip (name, owner, tax, manpower). Click enemy adjacent province to declare war.
 - **Layout:** CSS grid — 280px history panel (left) | map (right). Responsive: stacks vertically under 768px.
 - **Turn flow:** End Year → economy tick → event card (async pause) → AI turns → check win/loss → update map/HUD
